@@ -60,8 +60,34 @@ class BookHubControllerTest {
         mockMvc.perform(get("/book/read/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code", is(0)))
+                .andExpect(jsonPath("$.data.readMode", is("INTERNAL")))
                 .andExpect(jsonPath("$.data.fileType", is("html")))
                 .andExpect(jsonPath("$.data.readUrl").isNotEmpty());
+    }
+
+    @Test
+    void shouldReturnBookReadContentForInternalHtml() throws Exception {
+        mockMvc.perform(get("/book/read/content/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is(0)))
+                .andExpect(jsonPath("$.data").value(org.hamcrest.Matchers.containsString("Pride and Prejudice")));
+    }
+
+    @Test
+    void shouldReturnBookReadContentForInternalTxt() throws Exception {
+        mockMvc.perform(get("/book/read/content/2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is(0)))
+                .andExpect(jsonPath("$.data").value(org.hamcrest.Matchers.containsString("A Brief History of Time")));
+    }
+
+    @Test
+    void shouldReturnExternalReadInfoFor17KBook() throws Exception {
+        mockMvc.perform(get("/book/read/4"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is(0)))
+                .andExpect(jsonPath("$.data.readMode", is("EXTERNAL")))
+                .andExpect(jsonPath("$.data.readUrl").value(org.hamcrest.Matchers.containsString("17k.com")));
     }
 
     @Test
@@ -76,6 +102,17 @@ class BookHubControllerTest {
                 .andExpect(jsonPath("$.data.supplementSource", is("open-library")))
                 .andExpect(jsonPath("$.data.supplementCount", greaterThan(0)))
                 .andExpect(jsonPath("$.data.message", is("同步完成")));
+    }
+
+    @Test
+    void shouldTrigger17KMaleRankingSync() throws Exception {
+        mockMvc.perform(post("/admin/book/sync")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"sourceChannel\":\"17k\",\"rankType\":\"17k_male_click\",\"maxCount\":3}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is(0)))
+                .andExpect(jsonPath("$.data.source", is("17k")))
+                .andExpect(jsonPath("$.data.successCount", greaterThan(0)));
     }
 
     @Test

@@ -113,6 +113,7 @@ public class GutendexBookSyncService {
         book.setLanguage(extractFirstText(item.path("languages")));
         book.setCategoryId(bookCategoryService.resolveCategoryId(
                 title + " " + author + " " + description + " " + tagText));
+        book.setReadMode("INTERNAL");
         book.setFileType(fileType);
         book.setReadUrl(readUrl);
         book.setDownloadUrl(txtUrl != null ? txtUrl : readUrl);
@@ -201,18 +202,18 @@ public class GutendexBookSyncService {
                 "适合儿童阅读的北欧神话故事集，来自测试环境 mock 采集。",
                 "https://dummyimage.com/300x420/f7e4c8/8d6242&text=Children",
                 "gutendex", "24737", request.getLanguage() == null ? "en" : request.getLanguage(),
-                bookCategoryService.resolveCategoryId("children mythology"), null, "html",
+                bookCategoryService.resolveCategoryId("children mythology"), null, "INTERNAL", "html",
                 "https://www.gutenberg.org/cache/epub/24737/pg24737-images.html",
-                "https://www.gutenberg.org/files/24737/24737-0.txt", 1);
+                "https://www.gutenberg.org/files/24737/24737-0.txt", null, null, null, null, null, 1);
         books.add(first);
 
         Book second = new Book(null, "The History of Herodotus", "Herodotus",
                 "用于测试环境的历史类 mock 采集结果。",
                 "https://dummyimage.com/300x420/e3ddd0/7d6946&text=History",
                 "gutendex", "2707", request.getLanguage() == null ? "en" : request.getLanguage(),
-                bookCategoryService.resolveCategoryId(topic + " history"), null, "txt",
+                bookCategoryService.resolveCategoryId(topic + " history"), null, "INTERNAL", "txt",
                 "https://www.gutenberg.org/files/2707/2707-0.txt",
-                "https://www.gutenberg.org/files/2707/2707-0.txt", 1);
+                "https://www.gutenberg.org/files/2707/2707-0.txt", null, null, null, null, null, 1);
         books.add(second);
 
         int maxCount = normalizeMaxCount(request.getMaxCount());

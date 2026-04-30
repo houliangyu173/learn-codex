@@ -12,20 +12,27 @@ VALUES
   (5, '儿童', 0, 50, 1);
 
 INSERT INTO `book` (`id`, `title`, `author`, `description`, `cover_url`, `source`, `source_book_id`,
-                    `language`, `category_id`, `file_type`, `read_url`, `download_url`, `status`, `sync_status`)
+                    `language`, `category_id`, `read_mode`, `file_type`, `read_url`, `download_url`,
+                    `external_detail_url`, `external_read_url`, `rank_type`, `rank_no`, `rank_value`,
+                    `status`, `sync_status`)
 VALUES
   (1, 'Pride and Prejudice', 'Jane Austen', '一部经典的英国小说，围绕爱情、偏见与成长展开。',
    'https://www.gutenberg.org/cache/epub/1342/pg1342.cover.medium.jpg', 'gutendex', '1342',
-   'en', 3, 'html', 'https://www.gutenberg.org/cache/epub/1342/pg1342-images.html',
-   'https://www.gutenberg.org/files/1342/1342-0.txt', 1, 'SUCCESS'),
+   'en', 3, 'INTERNAL', 'html', 'https://www.gutenberg.org/cache/epub/1342/pg1342-images.html',
+   'https://www.gutenberg.org/files/1342/1342-0.txt', null, null, null, null, null, 1, 'SUCCESS'),
   (2, 'A Brief History of Time', 'Stephen Hawking', '以通俗方式介绍宇宙学和时间概念的科普作品。',
    'https://dummyimage.com/300x420/d6e2f0/59708a&text=Science', 'open-library', 'OL82563M',
-   'en', 1, 'txt', 'https://www.gutenberg.org/files/11/11-0.txt',
-   'https://www.gutenberg.org/files/11/11-0.txt', 1, 'SUCCESS'),
+   'en', 1, 'INTERNAL', 'txt', 'https://www.gutenberg.org/files/11/11-0.txt',
+   'https://www.gutenberg.org/files/11/11-0.txt', null, null, null, null, null, 1, 'SUCCESS'),
   (3, 'The History of the Peloponnesian War', 'Thucydides', '古希腊历史名著，记录伯罗奔尼撒战争全貌。',
    'https://dummyimage.com/300x420/e3ddd0/7d6946&text=History', 'gutendex', '7142',
-   'en', 2, 'html', 'https://www.gutenberg.org/cache/epub/7142/pg7142-images.html',
-   'https://www.gutenberg.org/files/7142/7142-0.txt', 1, 'SUCCESS');
+   'en', 2, 'INTERNAL', 'html', 'https://www.gutenberg.org/cache/epub/7142/pg7142-images.html',
+   'https://www.gutenberg.org/files/7142/7142-0.txt', null, null, null, null, null, 1, 'SUCCESS'),
+  (4, '重生倚天张无忌的长生之路', '佚名', '17K 榜单来源的初始化样例书籍。',
+   'https://dummyimage.com/300x420/e8d7c4/6d4c41&text=17K', '17k', '17k-seed-0001',
+   'zh', 3, 'EXTERNAL', 'html', 'https://www.17k.com/book/0001.html',
+   'https://www.17k.com/book/0001.html', 'https://www.17k.com/book/0001.html',
+   'https://www.17k.com/book/0001.html', '17k_male_click', 1, 140234, 1, 'SUCCESS');
 
 INSERT INTO `book_sync_log` (`id`, `source`, `trigger_type`, `request_params`, `success_count`, `fail_count`,
                              `status`, `message`)

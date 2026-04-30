@@ -7,15 +7,22 @@
         <img :src="book.coverUrl || fallbackCover" class="detail-cover" alt="书籍封面" />
         <div class="detail-content">
           <el-tag effect="dark" size="small">{{ book.categoryName || '未分类' }}</el-tag>
+          <el-tag v-if="book.readMode === 'EXTERNAL'" type="warning" size="small" class="mode-tag">站外阅读</el-tag>
           <h1>{{ book.title || '--' }}</h1>
           <p class="author">{{ book.author || '未知作者' }}</p>
           <p class="language">语言：{{ book.language || 'unknown' }}</p>
+          <p v-if="book.rankType" class="rank-line">
+            榜单：{{ formatRankType(book.rankType) }} · 第 {{ book.rankNo || '--' }} 名
+            <span v-if="book.rankValue"> · 值 {{ book.rankValue }}</span>
+          </p>
           <div class="summary">
             {{ book.description || '暂无简介' }}
           </div>
           <div class="action-bar">
             <el-button plain round @click="addToBookshelf">加入书架</el-button>
-            <el-button type="primary" round @click="goRead">开始阅读</el-button>
+            <el-button type="primary" round @click="goRead">
+              {{ book.readMode === 'EXTERNAL' ? '前往原站阅读' : '开始阅读' }}
+            </el-button>
           </div>
         </div>
       </section>
@@ -67,6 +74,15 @@ export default {
           _this.$message.error(error.message || '加入书架失败');
         });
     },
+    formatRankType: function formatRankType(rankType) {
+      if (rankType === '17k_male_click') {
+        return '17K 男生作品点击榜';
+      }
+      if (rankType === '17k_female_click') {
+        return '17K 女生作品点击榜';
+      }
+      return rankType || '榜单';
+    },
     goRead: function goRead() {
       this.$router.push('/reader/' + this.$route.params.id);
     }
@@ -106,6 +122,14 @@ export default {
 .author,
 .language {
   color: #6c7680;
+}
+
+.mode-tag {
+  margin-left: 8px;
+}
+
+.rank-line {
+  color: #8a6337;
 }
 
 .summary {

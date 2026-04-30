@@ -25,9 +25,15 @@ public class BookEntity {
     private String sourceBookId;
     private String language;
     private Long categoryId;
+    private String readMode;
     private String fileType;
     private String readUrl;
     private String downloadUrl;
+    private String externalDetailUrl;
+    private String externalReadUrl;
+    private String rankType;
+    private Integer rankNo;
+    private Long rankValue;
     private Integer status;
     private String syncStatus;
     private LocalDateTime createTime;
@@ -116,6 +122,14 @@ public class BookEntity {
         this.fileType = fileType;
     }
 
+    public String getReadMode() {
+        return readMode;
+    }
+
+    public void setReadMode(String readMode) {
+        this.readMode = readMode;
+    }
+
     public String getReadUrl() {
         return readUrl;
     }
@@ -130,6 +144,46 @@ public class BookEntity {
 
     public void setDownloadUrl(String downloadUrl) {
         this.downloadUrl = downloadUrl;
+    }
+
+    public String getExternalDetailUrl() {
+        return externalDetailUrl;
+    }
+
+    public void setExternalDetailUrl(String externalDetailUrl) {
+        this.externalDetailUrl = externalDetailUrl;
+    }
+
+    public String getExternalReadUrl() {
+        return externalReadUrl;
+    }
+
+    public void setExternalReadUrl(String externalReadUrl) {
+        this.externalReadUrl = externalReadUrl;
+    }
+
+    public String getRankType() {
+        return rankType;
+    }
+
+    public void setRankType(String rankType) {
+        this.rankType = rankType;
+    }
+
+    public Integer getRankNo() {
+        return rankNo;
+    }
+
+    public void setRankNo(Integer rankNo) {
+        this.rankNo = rankNo;
+    }
+
+    public Long getRankValue() {
+        return rankValue;
+    }
+
+    public void setRankValue(Long rankValue) {
+        this.rankValue = rankValue;
     }
 
     public Integer getStatus() {

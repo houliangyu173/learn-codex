@@ -60,6 +60,11 @@ public class BookController {
         return ApiResponse.success(bookReadService.getReadInfo(id));
     }
 
+    @GetMapping("/read/content/{id}")
+    public ApiResponse<String> readContent(@PathVariable("id") Long id) {
+        return ApiResponse.success(bookReadService.getReadContent(id));
+    }
+
     @GetMapping("/category/list")
     public ApiResponse<List<BookCategory>> categoryList() {
         return ApiResponse.success(bookCategoryService.listEnabledCategories());

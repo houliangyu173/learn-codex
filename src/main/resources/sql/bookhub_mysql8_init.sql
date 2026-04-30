@@ -43,9 +43,15 @@ CREATE TABLE `book` (
   `source_book_id` VARCHAR(100) NOT NULL COMMENT '来源系统中的书籍编号',
   `language` VARCHAR(20) DEFAULT NULL COMMENT '语言',
   `category_id` BIGINT DEFAULT NULL COMMENT '分类ID',
+  `read_mode` VARCHAR(20) NOT NULL DEFAULT 'INTERNAL' COMMENT '阅读模式：INTERNAL/EXTERNAL',
   `file_type` VARCHAR(20) DEFAULT NULL COMMENT '阅读文件类型，如 html/txt',
   `read_url` VARCHAR(500) DEFAULT NULL COMMENT '在线阅读地址',
   `download_url` VARCHAR(500) DEFAULT NULL COMMENT '下载地址',
+  `external_detail_url` VARCHAR(500) DEFAULT NULL COMMENT '外部详情页地址',
+  `external_read_url` VARCHAR(500) DEFAULT NULL COMMENT '外部阅读地址',
+  `rank_type` VARCHAR(50) DEFAULT NULL COMMENT '榜单类型',
+  `rank_no` INT DEFAULT NULL COMMENT '榜单排名',
+  `rank_value` BIGINT DEFAULT NULL COMMENT '榜单值',
   `status` TINYINT NOT NULL DEFAULT 1 COMMENT '上架状态：0下架，1上架',
   `sync_status` VARCHAR(30) NOT NULL DEFAULT 'SUCCESS' COMMENT '同步状态：SUCCESS/PARTIAL_SUCCESS/FAILED',
   `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -100,5 +106,28 @@ VALUES
   (3, '小说', 0, 30, 1),
   (4, '技术', 0, 40, 1),
   (5, '儿童', 0, 50, 1);
+
+INSERT INTO `book` (`id`, `title`, `author`, `description`, `cover_url`, `source`, `source_book_id`,
+                    `language`, `category_id`, `read_mode`, `file_type`, `read_url`, `download_url`,
+                    `external_detail_url`, `external_read_url`, `rank_type`, `rank_no`, `rank_value`,
+                    `status`, `sync_status`)
+VALUES
+  (1, 'Pride and Prejudice', 'Jane Austen', '一部经典的英国小说，围绕爱情、偏见与成长展开。',
+   'https://www.gutenberg.org/cache/epub/1342/pg1342.cover.medium.jpg', 'gutendex', '1342',
+   'en', 3, 'INTERNAL', 'html', 'https://www.gutenberg.org/cache/epub/1342/pg1342-images.html',
+   'https://www.gutenberg.org/files/1342/1342-0.txt', null, null, null, null, null, 1, 'SUCCESS'),
+  (2, 'A Brief History of Time', 'Stephen Hawking', '以通俗方式介绍宇宙学和时间概念的科普作品。',
+   'https://dummyimage.com/300x420/d6e2f0/59708a&text=Science', 'open-library', 'OL82563M',
+   'en', 1, 'INTERNAL', 'txt', 'https://www.gutenberg.org/files/11/11-0.txt',
+   'https://www.gutenberg.org/files/11/11-0.txt', null, null, null, null, null, 1, 'SUCCESS'),
+  (3, 'The History of the Peloponnesian War', 'Thucydides', '古希腊历史名著，记录伯罗奔尼撒战争全貌。',
+   'https://dummyimage.com/300x420/e3ddd0/7d6946&text=History', 'gutendex', '7142',
+   'en', 2, 'INTERNAL', 'html', 'https://www.gutenberg.org/cache/epub/7142/pg7142-images.html',
+   'https://www.gutenberg.org/files/7142/7142-0.txt', null, null, null, null, null, 1, 'SUCCESS'),
+  (4, '重生倚天张无忌的长生之路', '佚名', '17K 榜单来源的初始化样例书籍。',
+   'https://dummyimage.com/300x420/e8d7c4/6d4c41&text=17K', '17k', '17k-seed-0001',
+   'zh', 3, 'EXTERNAL', 'html', 'https://www.17k.com/book/0001.html',
+   'https://www.17k.com/book/0001.html', 'https://www.17k.com/book/0001.html',
+   'https://www.17k.com/book/0001.html', '17k_male_click', 1, 140234, 1, 'SUCCESS');
 
 SET FOREIGN_KEY_CHECKS = 1;

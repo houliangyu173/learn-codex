@@ -18,17 +18,24 @@ public class Book {
     private String language;
     private Long categoryId;
     private String categoryName;
+    private String readMode;
     private String fileType;
     private String readUrl;
     private String downloadUrl;
+    private String externalDetailUrl;
+    private String externalReadUrl;
+    private String rankType;
+    private Integer rankNo;
+    private Long rankValue;
     private Integer status;
 
     public Book() {
     }
 
     public Book(Long id, String title, String author, String description, String coverUrl, String source,
-                String sourceBookId, String language, Long categoryId, String categoryName, String fileType,
-                String readUrl, String downloadUrl, Integer status) {
+                String sourceBookId, String language, Long categoryId, String categoryName, String readMode,
+                String fileType, String readUrl, String downloadUrl, String externalDetailUrl,
+                String externalReadUrl, String rankType, Integer rankNo, Long rankValue, Integer status) {
         this.id = id;
         this.title = title;
         this.author = author;
@@ -39,9 +46,15 @@ public class Book {
         this.language = language;
         this.categoryId = categoryId;
         this.categoryName = categoryName;
+        this.readMode = readMode;
         this.fileType = fileType;
         this.readUrl = readUrl;
         this.downloadUrl = downloadUrl;
+        this.externalDetailUrl = externalDetailUrl;
+        this.externalReadUrl = externalReadUrl;
+        this.rankType = rankType;
+        this.rankNo = rankNo;
+        this.rankValue = rankValue;
         this.status = status;
     }
 
@@ -125,6 +138,14 @@ public class Book {
         this.categoryName = categoryName;
     }
 
+    public String getReadMode() {
+        return readMode;
+    }
+
+    public void setReadMode(String readMode) {
+        this.readMode = readMode;
+    }
+
     public String getFileType() {
         return fileType;
     }
@@ -147,6 +168,46 @@ public class Book {
 
     public void setDownloadUrl(String downloadUrl) {
         this.downloadUrl = downloadUrl;
+    }
+
+    public String getExternalDetailUrl() {
+        return externalDetailUrl;
+    }
+
+    public void setExternalDetailUrl(String externalDetailUrl) {
+        this.externalDetailUrl = externalDetailUrl;
+    }
+
+    public String getExternalReadUrl() {
+        return externalReadUrl;
+    }
+
+    public void setExternalReadUrl(String externalReadUrl) {
+        this.externalReadUrl = externalReadUrl;
+    }
+
+    public String getRankType() {
+        return rankType;
+    }
+
+    public void setRankType(String rankType) {
+        this.rankType = rankType;
+    }
+
+    public Integer getRankNo() {
+        return rankNo;
+    }
+
+    public void setRankNo(Integer rankNo) {
+        this.rankNo = rankNo;
+    }
+
+    public Long getRankValue() {
+        return rankValue;
+    }
+
+    public void setRankValue(Long rankValue) {
+        this.rankValue = rankValue;
     }
 
     public Integer getStatus() {

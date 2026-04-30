@@ -13,6 +13,8 @@ public class BookSyncRequest {
     private String topic;
     private Integer maxCount;
     private String triggerType;
+    private String sourceChannel;
+    private String rankType;
 
     public String getKeyword() {
         return keyword;
@@ -52,5 +54,21 @@ public class BookSyncRequest {
 
     public void setTriggerType(String triggerType) {
         this.triggerType = triggerType;
+    }
+
+    public String getSourceChannel() {
+        return sourceChannel;
+    }
+
+    public void setSourceChannel(String sourceChannel) {
+        this.sourceChannel = sourceChannel;
+    }
+
+    public String getRankType() {
+        return rankType;
+    }
+
+    public void setRankType(String rankType) {
+        this.rankType = rankType;
     }
 }

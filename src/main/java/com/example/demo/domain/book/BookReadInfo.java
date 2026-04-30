@@ -10,15 +10,17 @@ public class BookReadInfo {
 
     private Long id;
     private String title;
+    private String readMode;
     private String fileType;
     private String readUrl;
 
     public BookReadInfo() {
     }
 
-    public BookReadInfo(Long id, String title, String fileType, String readUrl) {
+    public BookReadInfo(Long id, String title, String readMode, String fileType, String readUrl) {
         this.id = id;
         this.title = title;
+        this.readMode = readMode;
         this.fileType = fileType;
         this.readUrl = readUrl;
     }
@@ -37,6 +39,14 @@ public class BookReadInfo {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getReadMode() {
+        return readMode;
+    }
+
+    public void setReadMode(String readMode) {
+        this.readMode = readMode;
     }
 
     public String getFileType() {

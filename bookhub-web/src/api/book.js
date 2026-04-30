@@ -22,6 +22,13 @@ export function getBookReadInfo(id) {
   });
 }
 
+export function getBookReadContent(id) {
+  return request({
+    url: '/book/read/content/' + id,
+    method: 'get'
+  });
+}
+
 export function getCategoryList() {
   return request({
     url: '/book/category/list',

@@ -6,9 +6,17 @@
     </header>
 
     <main v-loading="loading" class="reader-main">
+      <section v-if="readInfo.readMode === 'EXTERNAL'" class="external-reader">
+        <div class="external-card">
+          <h2>当前作品来自站外来源</h2>
+          <p>这本书不在 BookHub 站内分发正文，点击下方按钮后会前往原站继续阅读。</p>
+          <el-button type="primary" round @click="goExternal">前往原站阅读</el-button>
+        </div>
+      </section>
+
       <iframe
-        v-if="readInfo.fileType === 'html' && readInfo.readUrl"
-        :src="readInfo.readUrl"
+        v-else-if="readInfo.fileType === 'html' && htmlContent"
+        :srcdoc="htmlContent"
         class="reader-frame"
         frameborder="0"
       />
@@ -23,8 +31,7 @@
 </template>
 
 <script>
-import axios from 'axios';
-import { getBookReadInfo, updateBookshelfProgress } from '../api/book';
+import { getBookReadContent, getBookReadInfo, updateBookshelfProgress } from '../api/book';
 
 export default {
   name: 'ReaderView',
@@ -32,6 +39,7 @@ export default {
     return {
       loading: false,
       readInfo: {},
+      htmlContent: '',
       txtContent: ''
     };
   },
@@ -46,8 +54,8 @@ export default {
         .then(function onSuccess(data) {
           _this.readInfo = data || {};
           _this.syncProgress(10);
-          if ((_this.readInfo.fileType || '').toLowerCase() === 'txt' && _this.readInfo.readUrl) {
-            _this.fetchTxtContent();
+          if (_this.readInfo.readMode !== 'EXTERNAL') {
+            _this.fetchReadContent();
           }
         })
         .catch(function onError(error) {
@@ -57,15 +65,21 @@ export default {
           _this.loading = false;
         });
     },
-    fetchTxtContent: function fetchTxtContent() {
+    fetchReadContent: function fetchReadContent() {
       var _this = this;
-      axios
-        .get(this.readInfo.readUrl)
+      getBookReadContent(this.$route.params.id)
         .then(function onSuccess(response) {
-          _this.txtContent = response.data || '';
+          var fileType = (_this.readInfo.fileType || '').toLowerCase();
+          if (fileType === 'html') {
+            _this.htmlContent = response || '';
+            _this.txtContent = '';
+            return;
+          }
+          _this.txtContent = response || '';
+          _this.htmlContent = '';
         })
         .catch(function onError() {
-          _this.$message.error('获取 TXT 内容失败');
+          _this.$message.error('获取阅读内容失败');
         });
     },
     syncProgress: function syncProgress(progress) {
@@ -75,6 +89,11 @@ export default {
       }).catch(function onError() {
         return null;
       });
+    },
+    goExternal: function goExternal() {
+      if (this.readInfo.readUrl) {
+        window.location.href = this.readInfo.readUrl;
+      }
     }
   }
 };
@@ -109,6 +128,31 @@ export default {
 
 .reader-main {
   min-height: calc(100vh - 66px);
+}
+
+.external-reader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 66px);
+  padding: 24px;
+}
+
+.external-card {
+  max-width: 620px;
+  padding: 36px 32px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 18px 45px rgba(39, 58, 74, 0.08);
+}
+
+.external-card h2 {
+  margin-top: 0;
+}
+
+.external-card p {
+  color: #5f6b76;
+  line-height: 1.8;
 }
 
 .reader-frame {

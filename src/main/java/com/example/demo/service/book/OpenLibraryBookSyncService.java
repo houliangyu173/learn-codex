@@ -158,6 +158,7 @@ public class OpenLibraryBookSyncService {
         book.setLanguage(extractLanguage(item.path("language"), request.getLanguage()));
         book.setCategoryId(bookCategoryService.resolveCategoryId(
                 title + " " + author + " " + description + " " + request.getTopic()));
+        book.setReadMode("INTERNAL");
         book.setFileType("html");
         book.setReadUrl(readUrl);
         book.setDownloadUrl(readUrl);
@@ -230,18 +231,18 @@ public class OpenLibraryBookSyncService {
                 "来自 Open Library mock 的科学类补充书籍。",
                 "https://dummyimage.com/300x420/d6e2f0/59708a&text=Open+Sci",
                 "open-library", "OLM1001M", request.getLanguage() == null ? "en" : request.getLanguage(),
-                bookCategoryService.resolveCategoryId("science atlas"), null, "html",
+                bookCategoryService.resolveCategoryId("science atlas"), null, "INTERNAL", "html",
                 "https://openlibrary.org/books/OLM1001M",
-                "https://openlibrary.org/books/OLM1001M", 1);
+                "https://openlibrary.org/books/OLM1001M", null, null, null, null, null, 1);
         books.add(first);
 
         Book second = new Book(null, "Open Library History Notes", "Open Library",
                 "来自 Open Library mock 的历史类补充书籍。",
                 "https://dummyimage.com/300x420/e3ddd0/7d6946&text=Open+History",
                 "open-library", "OLM1002M", request.getLanguage() == null ? "en" : request.getLanguage(),
-                bookCategoryService.resolveCategoryId("history notes"), null, "html",
+                bookCategoryService.resolveCategoryId("history notes"), null, "INTERNAL", "html",
                 "https://openlibrary.org/books/OLM1002M",
-                "https://openlibrary.org/books/OLM1002M", 1);
+                "https://openlibrary.org/books/OLM1002M", null, null, null, null, null, 1);
         books.add(second);
 
         return new ArrayList<Book>(books.subList(0, Math.min(limit, books.size())));

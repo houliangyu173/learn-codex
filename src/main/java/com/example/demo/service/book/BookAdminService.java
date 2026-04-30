@@ -29,19 +29,25 @@ public class BookAdminService {
     private final BookSyncLogEntityMapper bookSyncLogEntityMapper;
     private final GutendexBookSyncService gutendexBookSyncService;
     private final OpenLibraryBookSyncService openLibraryBookSyncService;
+    private final SeventeenKRankingSyncService seventeenKRankingSyncService;
 
     public BookAdminService(BookMapper bookMapper, BookSyncLogEntityMapper bookSyncLogEntityMapper,
                             GutendexBookSyncService gutendexBookSyncService,
-                            OpenLibraryBookSyncService openLibraryBookSyncService) {
+                            OpenLibraryBookSyncService openLibraryBookSyncService,
+                            SeventeenKRankingSyncService seventeenKRankingSyncService) {
         this.bookMapper = bookMapper;
         this.bookSyncLogEntityMapper = bookSyncLogEntityMapper;
         this.gutendexBookSyncService = gutendexBookSyncService;
         this.openLibraryBookSyncService = openLibraryBookSyncService;
+        this.seventeenKRankingSyncService = seventeenKRankingSyncService;
     }
 
     public BookSyncResult syncBooks(BookSyncRequest request) {
         BookSyncRequest normalizedRequest = normalizeRequest(request);
         LocalDateTime startTime = LocalDateTime.now();
+        if ("17k".equalsIgnoreCase(normalizedRequest.getSourceChannel())) {
+            return syncSeventeenKBooks(normalizedRequest, startTime);
+        }
         try {
             List<Book> primaryBooks = gutendexBookSyncService.fetchBooks(normalizedRequest);
             openLibraryBookSyncService.enrichMissingFields(primaryBooks, normalizedRequest);
@@ -68,6 +74,20 @@ public class BookAdminService {
         }
     }
 
+    private BookSyncResult syncSeventeenKBooks(BookSyncRequest request, LocalDateTime startTime) {
+        try {
+            List<Book> books = seventeenKRankingSyncService.fetchRankingBooks(request);
+            int successCount = bookMapper.batchSave(books);
+            int failCount = Math.max(books.size() - successCount, 0);
+            String message = buildSeventeenKMessage(request, successCount);
+            saveSyncLog(startTime, request, successCount, failCount, "SUCCESS", message, null);
+            return new BookSyncResult("17k", successCount, failCount, "同步完成");
+        } catch (Exception exception) {
+            saveSyncLog(startTime, request, 0, 1, "FAILED", "同步失败", exception.getMessage());
+            return new BookSyncResult("17k", 0, 1, "同步失败");
+        }
+    }
+
     public Book updateStatus(BookStatusUpdateRequest request) {
         return bookMapper.updateStatus(request.getId(), request.getStatus());
     }
@@ -75,7 +95,7 @@ public class BookAdminService {
     private void saveSyncLog(LocalDateTime startTime, BookSyncRequest request, int successCount, int failCount,
                              String status, String message, String errorMessage) {
         BookSyncLogEntity logEntity = new BookSyncLogEntity();
-        logEntity.setSource("gutendex");
+        logEntity.setSource(request.getSourceChannel());
         logEntity.setTriggerType(request.getTriggerType());
         logEntity.setRequestParams(toJson(request));
         logEntity.setSuccessCount(successCount);
@@ -93,6 +113,9 @@ public class BookAdminService {
         if (normalizedRequest.getTriggerType() == null || normalizedRequest.getTriggerType().trim().isEmpty()) {
             normalizedRequest.setTriggerType("MANUAL");
         }
+        if (normalizedRequest.getSourceChannel() == null || normalizedRequest.getSourceChannel().trim().isEmpty()) {
+            normalizedRequest.setSourceChannel("gutendex");
+        }
         return normalizedRequest;
     }
 
@@ -108,6 +131,14 @@ public class BookAdminService {
             return "同步完成，Open Library 补充 " + supplementSuccessCount + " 条";
         }
         return "同步完成";
+    }
+
+    private String buildSeventeenKMessage(BookSyncRequest request, int successCount) {
+        String rankType = request.getRankType();
+        if ("17k_female_click".equals(rankType)) {
+            return "同步完成，17K 女生作品点击榜导入 " + successCount + " 条";
+        }
+        return "同步完成，17K 男生作品点击榜导入 " + successCount + " 条";
     }
 
     private String toJson(BookSyncRequest request) {

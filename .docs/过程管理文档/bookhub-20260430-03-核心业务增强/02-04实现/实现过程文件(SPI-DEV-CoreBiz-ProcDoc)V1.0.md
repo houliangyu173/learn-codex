@@ -26,8 +26,14 @@
 5. 前端新增 [Bookshelf.vue](/Users/houliangyu/myproject/codex-clound/bookhub-web/src/views/Bookshelf.vue)，首页增加书架入口，详情页增加“加入书架”，阅读页自动回写基础进度。
 6. 后台页补充同步条件输入和日志筛选展示，开发代理增加 `/bookshelf` 转发。
 7. 本轮新增 Open Library 补充采集编排：数量不足时补新书，字段缺失时补简介/封面，同步结果和日志增加补充来源信息。
+8. 本轮新增 `SeventeenKRankingSyncService`，实现 17K 榜单来源 mock 采集与生产环境 HTML 解析骨架。
+9. 数据模型扩展出 `readMode`、外部链接、榜单类型、榜单排名和榜单值字段。
+10. 前端后台同步区新增 17K 榜单入口，详情页和阅读页支持 `EXTERNAL` 站外阅读模式。
+11. 本轮修复站内阅读空白问题：后端新增 `/book/read/content/{id}` 正文代理接口，`BookReadService` 负责服务端拉取 `txt/html` 内容。
+12. 前端阅读页改为请求本站正文代理接口，`html` 通过 `iframe srcdoc` 渲染，`txt` 不再直接跨域读取外部链接。
 
 ## 3. 验证记录
 
-1. `mvn -Dmaven.repo.local=/tmp/codex-m2 test`：20 个测试通过。
-2. `cd bookhub-web && npm run build`：构建通过，仅存在 Vue2 供应商包体积告警。
+1. `mvn -Dmaven.repo.local=/tmp/codex-m2 -Dtest=BookHubControllerTest test`：阅读代理相关接口测试通过。
+2. `mvn -Dmaven.repo.local=/tmp/codex-m2 test`：24 个测试通过。
+3. `cd bookhub-web && npm run build`：构建通过，仅存在 Vue2 供应商包体积告警。

@@ -96,9 +96,15 @@ public class MybatisBookMapper implements BookMapper {
                 entity.getLanguage(),
                 entity.getCategoryId(),
                 entity.getCategoryName(),
+                entity.getReadMode(),
                 entity.getFileType(),
                 entity.getReadUrl(),
                 entity.getDownloadUrl(),
+                entity.getExternalDetailUrl(),
+                entity.getExternalReadUrl(),
+                entity.getRankType(),
+                entity.getRankNo(),
+                entity.getRankValue(),
                 entity.getStatus()
         );
     }
@@ -114,9 +120,15 @@ public class MybatisBookMapper implements BookMapper {
         entity.setSourceBookId(book.getSourceBookId());
         entity.setLanguage(book.getLanguage());
         entity.setCategoryId(book.getCategoryId());
+        entity.setReadMode(book.getReadMode());
         entity.setFileType(book.getFileType());
         entity.setReadUrl(book.getReadUrl());
         entity.setDownloadUrl(book.getDownloadUrl());
+        entity.setExternalDetailUrl(book.getExternalDetailUrl());
+        entity.setExternalReadUrl(book.getExternalReadUrl());
+        entity.setRankType(book.getRankType());
+        entity.setRankNo(book.getRankNo());
+        entity.setRankValue(book.getRankValue());
         entity.setStatus(book.getStatus());
         entity.setSyncStatus("SUCCESS");
         return entity;

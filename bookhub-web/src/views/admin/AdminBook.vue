@@ -15,17 +15,44 @@
       <section class="section-card sync-panel">
         <div class="panel-title">
           <h3>手动同步</h3>
-          <span>支持输入关键字、语言和主题，真实调用 Gutendex 采集。</span>
+          <span>支持公开书源采集，也支持 17K 榜单元数据同步。</span>
         </div>
         <el-form :inline="true" @submit.native.prevent>
           <el-form-item>
-            <el-input v-model="syncForm.keyword" clearable placeholder="关键字，如 pride" />
+            <el-select v-model="syncForm.sourceChannel" placeholder="来源渠道">
+              <el-option label="公开书源" value="gutendex" />
+              <el-option label="17K 榜单" value="17k" />
+            </el-select>
+          </el-form-item>
+          <el-form-item v-if="syncForm.sourceChannel === '17k'">
+            <el-select v-model="syncForm.rankType" placeholder="榜单类型">
+              <el-option label="男生作品点击榜" value="17k_male_click" />
+              <el-option label="女生作品点击榜" value="17k_female_click" />
+            </el-select>
           </el-form-item>
           <el-form-item>
-            <el-input v-model="syncForm.language" clearable placeholder="语言，如 en" />
+            <el-input
+              v-model="syncForm.keyword"
+              clearable
+              :disabled="syncForm.sourceChannel === '17k'"
+              placeholder="关键字，如 pride"
+            />
           </el-form-item>
           <el-form-item>
-            <el-input v-model="syncForm.topic" clearable placeholder="主题，如 history" />
+            <el-input
+              v-model="syncForm.language"
+              clearable
+              :disabled="syncForm.sourceChannel === '17k'"
+              placeholder="语言，如 en"
+            />
+          </el-form-item>
+          <el-form-item>
+            <el-input
+              v-model="syncForm.topic"
+              clearable
+              :disabled="syncForm.sourceChannel === '17k'"
+              placeholder="主题，如 history"
+            />
           </el-form-item>
           <el-form-item>
             <el-input-number v-model="syncForm.maxCount" :min="1" :max="20" />
@@ -41,6 +68,8 @@
           <el-table-column prop="title" label="书名" min-width="220" />
           <el-table-column prop="author" label="作者" min-width="160" />
           <el-table-column prop="categoryName" label="分类" width="120" />
+          <el-table-column prop="source" label="来源" width="120" />
+          <el-table-column prop="readMode" label="阅读模式" width="120" />
           <el-table-column prop="language" label="语言" width="100" />
           <el-table-column label="状态" width="120">
             <template slot-scope="scope">
@@ -82,6 +111,7 @@
           <el-form-item>
             <el-select v-model="logQuery.source" clearable placeholder="来源">
               <el-option label="gutendex" value="gutendex" />
+              <el-option label="17k" value="17k" />
             </el-select>
           </el-form-item>
           <el-form-item>
@@ -126,6 +156,8 @@ export default {
       logLoading: false,
       syncLoading: false,
       syncForm: {
+        sourceChannel: 'gutendex',
+        rankType: '17k_male_click',
         keyword: 'classic',
         language: 'en',
         topic: '',
