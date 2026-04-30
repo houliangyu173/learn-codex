@@ -1,0 +1,127 @@
+<template>
+  <div class="page-shell detail-page">
+    <div class="page-container">
+      <el-button type="text" class="back-link" @click="$router.push('/')">返回首页</el-button>
+
+      <section v-loading="loading" class="detail-card section-card">
+        <img :src="book.coverUrl || fallbackCover" class="detail-cover" alt="书籍封面" />
+        <div class="detail-content">
+          <el-tag effect="dark" size="small">{{ book.categoryName || '未分类' }}</el-tag>
+          <h1>{{ book.title || '--' }}</h1>
+          <p class="author">{{ book.author || '未知作者' }}</p>
+          <p class="language">语言：{{ book.language || 'unknown' }}</p>
+          <div class="summary">
+            {{ book.description || '暂无简介' }}
+          </div>
+          <div class="action-bar">
+            <el-button type="primary" round @click="goRead">开始阅读</el-button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</template>
+
+<script>
+import { getBookDetail } from '../api/book';
+
+var fallbackCover = 'https://dummyimage.com/320x460/e8edf2/7b8794&text=BookHub';
+
+export default {
+  name: 'BookDetailView',
+  data: function data() {
+    return {
+      loading: false,
+      fallbackCover: fallbackCover,
+      book: {}
+    };
+  },
+  created: function created() {
+    this.fetchDetail();
+  },
+  methods: {
+    fetchDetail: function fetchDetail() {
+      var _this = this;
+      this.loading = true;
+      getBookDetail(this.$route.params.id)
+        .then(function onSuccess(data) {
+          _this.book = data || {};
+        })
+        .catch(function onError(error) {
+          _this.$message.error(error.message || '获取书籍详情失败');
+        })
+        .finally(function onFinally() {
+          _this.loading = false;
+        });
+    },
+    goRead: function goRead() {
+      this.$router.push('/reader/' + this.$route.params.id);
+    }
+  }
+};
+</script>
+
+<style scoped>
+.detail-card {
+  display: flex;
+  gap: 32px;
+  padding: 32px;
+}
+
+.back-link {
+  margin-bottom: 12px;
+}
+
+.detail-cover {
+  width: 320px;
+  height: 460px;
+  object-fit: cover;
+  border-radius: 18px;
+  background: #eef2f6;
+}
+
+.detail-content {
+  flex: 1;
+}
+
+.detail-content h1 {
+  margin: 18px 0 12px;
+  font-size: 34px;
+  line-height: 1.25;
+}
+
+.author,
+.language {
+  color: #6c7680;
+}
+
+.summary {
+  margin-top: 22px;
+  padding: 20px;
+  border-radius: 16px;
+  background: #f7f9fb;
+  color: #3e4750;
+  line-height: 1.9;
+  white-space: pre-wrap;
+}
+
+.action-bar {
+  margin-top: 28px;
+}
+
+@media (max-width: 768px) {
+  .detail-card {
+    flex-direction: column;
+    padding: 20px;
+  }
+
+  .detail-cover {
+    width: 100%;
+    height: auto;
+  }
+
+  .detail-content h1 {
+    font-size: 28px;
+  }
+}
+</style>
