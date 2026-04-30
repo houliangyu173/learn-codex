@@ -8,6 +8,7 @@
           <p>支持搜索、分类筛选和在线阅读，快速构建你的数字书单。</p>
         </div>
         <div class="hero-action">
+          <el-button round @click="$router.push('/bookshelf')">我的书架</el-button>
           <el-button type="primary" round @click="$router.push('/admin/books')">进入后台</el-button>
         </div>
       </section>
@@ -161,6 +162,11 @@ export default {
   background: linear-gradient(135deg, #f5f0df 0%, #dce8f5 100%);
 }
 
+.hero-action {
+  display: flex;
+  gap: 12px;
+}
+
 .hero-copy {
   max-width: 680px;
 }
@@ -271,6 +277,11 @@ export default {
     align-items: flex-start;
     gap: 20px;
     padding: 28px 22px;
+  }
+
+  .hero-action {
+    width: 100%;
+    flex-wrap: wrap;
   }
 
   .hero h1 {

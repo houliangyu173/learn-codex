@@ -15,6 +15,8 @@ public class BookSyncLog {
     private Integer failCount;
     private String status;
     private String message;
+    private String requestParams;
+    private String errorMessage;
     private String startTime;
     private String endTime;
 
@@ -72,6 +74,22 @@ public class BookSyncLog {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getRequestParams() {
+        return requestParams;
+    }
+
+    public void setRequestParams(String requestParams) {
+        this.requestParams = requestParams;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 
     public String getStartTime() {

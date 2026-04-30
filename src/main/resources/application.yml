@@ -21,3 +21,9 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: auto
+
+bookhub:
+  sync:
+    gutendex-base-url: https://gutendex.com
+    default-max-count: 10
+    mock-enabled: false

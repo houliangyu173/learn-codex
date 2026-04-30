@@ -9,6 +9,10 @@ module.exports = {
       '/admin': {
         target: 'http://localhost:8080',
         changeOrigin: true
+      },
+      '/bookshelf': {
+        target: 'http://localhost:8080',
+        changeOrigin: true
       }
     }
   }

@@ -4,7 +4,7 @@
 日期: 2026-04-30
 编号: SPI-PROC-CoreBiz-README
 阶段: 02-02需求/02-03设计/02-04实现
-状态: 草案
+状态: 已基线
 ---
 
 # 任务总览
@@ -33,7 +33,13 @@
 2. 提供 V1 可用的书架列表、加入书架、进度更新能力。
 3. 增强后台同步日志查询条件与展示内容。
 
-## 5. 文档清单
+## 5. 当前完成情况
+
+1. 已完成 Gutendex 真实采集接入，并补充 Open Library 作为字段补全与数量兜底来源。
+2. 已完成书架接口、书架页面与详情页/阅读页联动。
+3. 已完成后台同步条件输入、日志筛选与日志字段增强。
+
+## 6. 文档清单
 
 1. [需求规格说明书(SPI-REQ-CoreBiz-SRS)V1.0.md](/Users/houliangyu/myproject/codex-clound/.docs/过程管理文档/bookhub-20260430-03-核心业务增强/02-02需求/需求规格说明书(SPI-REQ-CoreBiz-SRS)V1.0.md)
 2. [概要设计说明书(SPI-DES-CoreBiz-GD)V1.0.md](/Users/houliangyu/myproject/codex-clound/.docs/过程管理文档/bookhub-20260430-03-核心业务增强/02-03设计/概要设计说明书(SPI-DES-CoreBiz-GD)V1.0.md)

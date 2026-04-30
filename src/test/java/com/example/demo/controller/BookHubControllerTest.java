@@ -68,10 +68,13 @@ class BookHubControllerTest {
     void shouldTriggerBookSync() throws Exception {
         mockMvc.perform(post("/admin/book/sync")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{}"))
+                        .content("{\"keyword\":\"science\",\"language\":\"en\",\"topic\":\"history\",\"maxCount\":4}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code", is(0)))
                 .andExpect(jsonPath("$.data.successCount", greaterThan(0)))
+                .andExpect(jsonPath("$.data.source", is("gutendex")))
+                .andExpect(jsonPath("$.data.supplementSource", is("open-library")))
+                .andExpect(jsonPath("$.data.supplementCount", greaterThan(0)))
                 .andExpect(jsonPath("$.data.message", is("同步完成")));
     }
 
@@ -104,5 +107,50 @@ class BookHubControllerTest {
                 .andExpect(jsonPath("$.code", is(0)))
                 .andExpect(jsonPath("$.data.records", hasSize(greaterThan(0))))
                 .andExpect(jsonPath("$.data.records[0].source").isNotEmpty());
+    }
+
+    @Test
+    void shouldFilterSyncLogListAndReturnRequestParams() throws Exception {
+        mockMvc.perform(get("/admin/book/sync/log/list")
+                        .param("pageNum", "1")
+                        .param("pageSize", "10")
+                        .param("source", "gutendex")
+                        .param("status", "SUCCESS"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is(0)))
+                .andExpect(jsonPath("$.data.records", hasSize(greaterThan(0))))
+                .andExpect(jsonPath("$.data.records[0].message").value(org.hamcrest.Matchers.containsString("Open Library")))
+                .andExpect(jsonPath("$.data.records[0].requestParams").isNotEmpty());
+    }
+
+    @Test
+    void shouldAddBookshelfItemAndQueryList() throws Exception {
+        mockMvc.perform(post("/bookshelf/add")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"bookId\":1}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is(0)))
+                .andExpect(jsonPath("$.data.bookId", is(1)));
+
+        mockMvc.perform(get("/bookshelf/list"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is(0)))
+                .andExpect(jsonPath("$.data.records", hasSize(greaterThan(0))))
+                .andExpect(jsonPath("$.data.records[0].bookId", is(1)));
+    }
+
+    @Test
+    void shouldUpdateBookshelfProgress() throws Exception {
+        mockMvc.perform(post("/bookshelf/add")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"bookId\":1}"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(put("/bookshelf/progress")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"bookId\":1,\"readProgress\":45}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is(0)))
+                .andExpect(jsonPath("$.data.readProgress", is(45)));
     }
 }

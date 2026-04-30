@@ -14,6 +14,7 @@
             {{ book.description || '暂无简介' }}
           </div>
           <div class="action-bar">
+            <el-button plain round @click="addToBookshelf">加入书架</el-button>
             <el-button type="primary" round @click="goRead">开始阅读</el-button>
           </div>
         </div>
@@ -23,7 +24,7 @@
 </template>
 
 <script>
-import { getBookDetail } from '../api/book';
+import { addBookshelfItem, getBookDetail } from '../api/book';
 
 var fallbackCover = 'https://dummyimage.com/320x460/e8edf2/7b8794&text=BookHub';
 
@@ -52,6 +53,18 @@ export default {
         })
         .finally(function onFinally() {
           _this.loading = false;
+        });
+    },
+    addToBookshelf: function addToBookshelf() {
+      var _this = this;
+      addBookshelfItem({
+        bookId: Number(this.$route.params.id)
+      })
+        .then(function onSuccess() {
+          _this.$message.success('已加入书架');
+        })
+        .catch(function onError(error) {
+          _this.$message.error(error.message || '加入书架失败');
         });
     },
     goRead: function goRead() {

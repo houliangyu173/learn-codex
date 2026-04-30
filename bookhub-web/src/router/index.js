@@ -3,6 +3,7 @@ import Router from 'vue-router';
 import Home from '../views/Home.vue';
 import BookDetail from '../views/BookDetail.vue';
 import Reader from '../views/Reader.vue';
+import Bookshelf from '../views/Bookshelf.vue';
 import AdminBook from '../views/admin/AdminBook.vue';
 
 Vue.use(Router);
@@ -24,6 +25,11 @@ export default new Router({
       path: '/reader/:id',
       name: 'Reader',
       component: Reader
+    },
+    {
+      path: '/bookshelf',
+      name: 'Bookshelf',
+      component: Bookshelf
     },
     {
       path: '/admin/books',

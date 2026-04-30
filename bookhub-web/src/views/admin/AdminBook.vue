@@ -4,12 +4,36 @@
       <section class="section-card admin-header">
         <div>
           <h2>书籍管理</h2>
-          <p>执行手动同步、查看书籍状态并完成上下架。</p>
+          <p>执行真实采集、查看日志、完成上下架与联调运营。</p>
         </div>
         <div class="admin-actions">
+          <el-button @click="$router.push('/bookshelf')">查看书架</el-button>
           <el-button @click="$router.push('/')">返回前台</el-button>
-          <el-button type="primary" :loading="syncLoading" @click="handleSync">手动同步</el-button>
         </div>
+      </section>
+
+      <section class="section-card sync-panel">
+        <div class="panel-title">
+          <h3>手动同步</h3>
+          <span>支持输入关键字、语言和主题，真实调用 Gutendex 采集。</span>
+        </div>
+        <el-form :inline="true" @submit.native.prevent>
+          <el-form-item>
+            <el-input v-model="syncForm.keyword" clearable placeholder="关键字，如 pride" />
+          </el-form-item>
+          <el-form-item>
+            <el-input v-model="syncForm.language" clearable placeholder="语言，如 en" />
+          </el-form-item>
+          <el-form-item>
+            <el-input v-model="syncForm.topic" clearable placeholder="主题，如 history" />
+          </el-form-item>
+          <el-form-item>
+            <el-input-number v-model="syncForm.maxCount" :min="1" :max="20" />
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" :loading="syncLoading" @click="handleSync">执行同步</el-button>
+          </el-form-item>
+        </el-form>
       </section>
 
       <section class="section-card table-panel">
@@ -54,6 +78,27 @@
           <h3>同步日志</h3>
           <span>查看最近的采集执行记录</span>
         </div>
+        <el-form :inline="true" class="log-filter" @submit.native.prevent>
+          <el-form-item>
+            <el-select v-model="logQuery.source" clearable placeholder="来源">
+              <el-option label="gutendex" value="gutendex" />
+            </el-select>
+          </el-form-item>
+          <el-form-item>
+            <el-select v-model="logQuery.status" clearable placeholder="状态">
+              <el-option label="SUCCESS" value="SUCCESS" />
+              <el-option label="FAILED" value="FAILED" />
+            </el-select>
+          </el-form-item>
+          <el-form-item>
+            <el-select v-model="logQuery.triggerType" clearable placeholder="触发方式">
+              <el-option label="MANUAL" value="MANUAL" />
+            </el-select>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" plain @click="fetchSyncLogs">筛选</el-button>
+          </el-form-item>
+        </el-form>
         <el-table v-loading="logLoading" :data="syncLogs" stripe>
           <el-table-column prop="source" label="来源" width="120" />
           <el-table-column prop="triggerType" label="触发方式" width="120" />
@@ -61,6 +106,8 @@
           <el-table-column prop="failCount" label="失败数" width="100" />
           <el-table-column prop="status" label="状态" width="140" />
           <el-table-column prop="message" label="说明" min-width="180" />
+          <el-table-column prop="requestParams" label="请求参数" min-width="260" show-overflow-tooltip />
+          <el-table-column prop="errorMessage" label="错误信息" min-width="220" show-overflow-tooltip />
           <el-table-column prop="startTime" label="开始时间" min-width="180" />
         </el-table>
       </section>
@@ -78,9 +125,22 @@ export default {
       loading: false,
       logLoading: false,
       syncLoading: false,
+      syncForm: {
+        keyword: 'classic',
+        language: 'en',
+        topic: '',
+        maxCount: 5
+      },
       query: {
         pageNum: 1,
         pageSize: 10
+      },
+      logQuery: {
+        pageNum: 1,
+        pageSize: 5,
+        source: '',
+        status: '',
+        triggerType: ''
       },
       books: [],
       total: 0,
@@ -110,9 +170,9 @@ export default {
     handleSync: function handleSync() {
       var _this = this;
       this.syncLoading = true;
-      syncBooks()
-        .then(function onSuccess() {
-          _this.$message.success('同步任务已触发');
+      syncBooks(this.syncForm)
+        .then(function onSuccess(data) {
+          _this.$message.success('同步完成，成功 ' + (data.successCount || 0) + ' 条');
           _this.fetchBooks();
           _this.fetchSyncLogs();
         })
@@ -140,10 +200,7 @@ export default {
     fetchSyncLogs: function fetchSyncLogs() {
       var _this = this;
       this.logLoading = true;
-      getSyncLogList({
-        pageNum: 1,
-        pageSize: 5
-      })
+      getSyncLogList(this.logQuery)
         .then(function onSuccess(data) {
           _this.syncLogs = data.records || [];
         })
@@ -187,6 +244,11 @@ export default {
   margin-bottom: 24px;
 }
 
+.sync-panel {
+  padding: 20px 24px 8px;
+  margin-bottom: 24px;
+}
+
 .pagination-box {
   display: flex;
   justify-content: flex-end;
@@ -195,6 +257,10 @@ export default {
 
 .log-panel {
   padding: 20px;
+}
+
+.log-filter {
+  margin-bottom: 8px;
 }
 
 .panel-title {

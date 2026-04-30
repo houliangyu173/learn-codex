@@ -52,3 +52,27 @@ export function getSyncLogList(params) {
     params: params
   });
 }
+
+export function addBookshelfItem(data) {
+  return request({
+    url: '/bookshelf/add',
+    method: 'post',
+    data: data
+  });
+}
+
+export function updateBookshelfProgress(data) {
+  return request({
+    url: '/bookshelf/progress',
+    method: 'put',
+    data: data
+  });
+}
+
+export function getBookshelfList(params) {
+  return request({
+    url: '/bookshelf/list',
+    method: 'get',
+    params: params
+  });
+}

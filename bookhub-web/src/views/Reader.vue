@@ -24,7 +24,7 @@
 
 <script>
 import axios from 'axios';
-import { getBookReadInfo } from '../api/book';
+import { getBookReadInfo, updateBookshelfProgress } from '../api/book';
 
 export default {
   name: 'ReaderView',
@@ -45,6 +45,7 @@ export default {
       getBookReadInfo(this.$route.params.id)
         .then(function onSuccess(data) {
           _this.readInfo = data || {};
+          _this.syncProgress(10);
           if ((_this.readInfo.fileType || '').toLowerCase() === 'txt' && _this.readInfo.readUrl) {
             _this.fetchTxtContent();
           }
@@ -66,6 +67,14 @@ export default {
         .catch(function onError() {
           _this.$message.error('获取 TXT 内容失败');
         });
+    },
+    syncProgress: function syncProgress(progress) {
+      updateBookshelfProgress({
+        bookId: Number(this.$route.params.id),
+        readProgress: progress
+      }).catch(function onError() {
+        return null;
+      });
     }
   }
 };

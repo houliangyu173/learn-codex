@@ -1,14 +1,15 @@
 package com.example.demo.service.book;
 
 import com.example.demo.domain.book.Book;
+import com.example.demo.domain.book.BookSyncRequest;
 import com.example.demo.domain.book.BookStatusUpdateRequest;
 import com.example.demo.domain.book.BookSyncResult;
 import com.example.demo.entity.BookSyncLogEntity;
 import com.example.demo.mapper.book.BookMapper;
 import com.example.demo.mapper.book.BookSyncLogEntityMapper;
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.springframework.stereotype.Service;
 
 /**
@@ -20,50 +21,100 @@ import org.springframework.stereotype.Service;
 @Service
 public class BookAdminService {
 
+    private static final int DEFAULT_MAX_COUNT = 10;
+    private static final int MAX_SYNC_COUNT = 32;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private final BookMapper bookMapper;
     private final BookSyncLogEntityMapper bookSyncLogEntityMapper;
+    private final GutendexBookSyncService gutendexBookSyncService;
+    private final OpenLibraryBookSyncService openLibraryBookSyncService;
 
-    public BookAdminService(BookMapper bookMapper, BookSyncLogEntityMapper bookSyncLogEntityMapper) {
+    public BookAdminService(BookMapper bookMapper, BookSyncLogEntityMapper bookSyncLogEntityMapper,
+                            GutendexBookSyncService gutendexBookSyncService,
+                            OpenLibraryBookSyncService openLibraryBookSyncService) {
         this.bookMapper = bookMapper;
         this.bookSyncLogEntityMapper = bookSyncLogEntityMapper;
+        this.gutendexBookSyncService = gutendexBookSyncService;
+        this.openLibraryBookSyncService = openLibraryBookSyncService;
     }
 
-    public BookSyncResult syncBooks() {
-        List<Book> importedBooks = new ArrayList<Book>();
-        importedBooks.add(new Book(null, "The Children of Odin", "Padraic Colum",
-                "适合儿童阅读的北欧神话故事集，用于演示儿童分类。",
-                "https://dummyimage.com/300x420/f7e4c8/8d6242&text=Children",
-                "gutendex", "24737", "en", 5L, "儿童", "html",
-                "https://www.gutenberg.org/cache/epub/24737/pg24737-images.html",
-                "https://www.gutenberg.org/files/24737/24737-0.txt", 1));
-        importedBooks.add(new Book(null, "Computers and People", "Anonymous",
-                "用于演示技术分类的样例书籍。",
-                "https://dummyimage.com/300x420/d8e7db/5f7b67&text=Tech",
-                "gutendex", "99001", "en", 4L, "技术", "txt",
-                "https://www.gutenberg.org/files/98/98-0.txt",
-                "https://www.gutenberg.org/files/98/98-0.txt", 1));
+    public BookSyncResult syncBooks(BookSyncRequest request) {
+        BookSyncRequest normalizedRequest = normalizeRequest(request);
+        LocalDateTime startTime = LocalDateTime.now();
+        try {
+            List<Book> primaryBooks = gutendexBookSyncService.fetchBooks(normalizedRequest);
+            openLibraryBookSyncService.enrichMissingFields(primaryBooks, normalizedRequest);
 
-        // 这里先用内存数据模拟采集结果，保留后续切换真实 API 的编排入口。
-        int successCount = bookMapper.batchSave(importedBooks);
-        saveSyncLog(successCount, importedBooks.size() - successCount);
-        return new BookSyncResult(successCount, "同步完成");
+            int maxCount = normalizeMaxCount(normalizedRequest.getMaxCount());
+            int remainingCount = Math.max(maxCount - primaryBooks.size(), 0);
+            List<Book> supplementBooks = openLibraryBookSyncService.fetchSupplementBooks(normalizedRequest, remainingCount);
+
+            int primarySuccessCount = bookMapper.batchSave(primaryBooks);
+            int supplementSuccessCount = bookMapper.batchSave(supplementBooks);
+            int successCount = primarySuccessCount + supplementSuccessCount;
+            int failCount = Math.max(primaryBooks.size() - primarySuccessCount, 0)
+                    + Math.max(supplementBooks.size() - supplementSuccessCount, 0);
+            String message = buildSuccessMessage(supplementSuccessCount);
+            saveSyncLog(startTime, normalizedRequest, successCount, failCount, "SUCCESS", message, null);
+
+            BookSyncResult result = new BookSyncResult("gutendex", successCount, failCount, "同步完成");
+            result.setSupplementSource("open-library");
+            result.setSupplementCount(supplementSuccessCount);
+            return result;
+        } catch (Exception exception) {
+            saveSyncLog(startTime, normalizedRequest, 0, 1, "FAILED", "同步失败", exception.getMessage());
+            return new BookSyncResult("gutendex", 0, 1, "同步失败");
+        }
     }
 
     public Book updateStatus(BookStatusUpdateRequest request) {
         return bookMapper.updateStatus(request.getId(), request.getStatus());
     }
 
-    private void saveSyncLog(int successCount, int failCount) {
+    private void saveSyncLog(LocalDateTime startTime, BookSyncRequest request, int successCount, int failCount,
+                             String status, String message, String errorMessage) {
         BookSyncLogEntity logEntity = new BookSyncLogEntity();
         logEntity.setSource("gutendex");
-        logEntity.setTriggerType("MANUAL");
-        logEntity.setRequestParams("{}");
+        logEntity.setTriggerType(request.getTriggerType());
+        logEntity.setRequestParams(toJson(request));
         logEntity.setSuccessCount(successCount);
         logEntity.setFailCount(failCount);
-        logEntity.setStatus(failCount > 0 ? "PARTIAL_SUCCESS" : "SUCCESS");
-        logEntity.setMessage("同步完成");
-        logEntity.setStartTime(LocalDateTime.now());
+        logEntity.setStatus(status);
+        logEntity.setMessage(message);
+        logEntity.setErrorMessage(errorMessage);
+        logEntity.setStartTime(startTime);
         logEntity.setEndTime(LocalDateTime.now());
         bookSyncLogEntityMapper.insert(logEntity);
+    }
+
+    private BookSyncRequest normalizeRequest(BookSyncRequest request) {
+        BookSyncRequest normalizedRequest = request == null ? new BookSyncRequest() : request;
+        if (normalizedRequest.getTriggerType() == null || normalizedRequest.getTriggerType().trim().isEmpty()) {
+            normalizedRequest.setTriggerType("MANUAL");
+        }
+        return normalizedRequest;
+    }
+
+    private int normalizeMaxCount(Integer maxCount) {
+        if (maxCount == null || maxCount <= 0) {
+            return DEFAULT_MAX_COUNT;
+        }
+        return Math.min(maxCount, MAX_SYNC_COUNT);
+    }
+
+    private String buildSuccessMessage(int supplementSuccessCount) {
+        if (supplementSuccessCount > 0) {
+            return "同步完成，Open Library 补充 " + supplementSuccessCount + " 条";
+        }
+        return "同步完成";
+    }
+
+    private String toJson(BookSyncRequest request) {
+        try {
+            return objectMapper.writeValueAsString(request);
+        } catch (Exception exception) {
+            return "{}";
+        }
     }
 }

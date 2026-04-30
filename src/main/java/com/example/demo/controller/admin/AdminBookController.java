@@ -2,6 +2,8 @@ package com.example.demo.controller.admin;
 
 import com.example.demo.common.ApiResponse;
 import com.example.demo.domain.book.Book;
+import com.example.demo.domain.book.BookSyncLogQuery;
+import com.example.demo.domain.book.BookSyncRequest;
 import com.example.demo.domain.book.BookStatusUpdateRequest;
 import com.example.demo.domain.book.BookSyncResult;
 import com.example.demo.domain.book.BookSyncLog;
@@ -35,8 +37,8 @@ public class AdminBookController {
     }
 
     @PostMapping("/sync")
-    public ApiResponse<BookSyncResult> sync() {
-        return ApiResponse.success(bookAdminService.syncBooks());
+    public ApiResponse<BookSyncResult> sync(@RequestBody(required = false) BookSyncRequest request) {
+        return ApiResponse.success(bookAdminService.syncBooks(request));
     }
 
     @PutMapping("/status")
@@ -47,7 +49,16 @@ public class AdminBookController {
     @GetMapping("/sync/log/list")
     public ApiResponse<PageResult<BookSyncLog>> syncLogList(
             @RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
-            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
-        return ApiResponse.success(bookSyncLogService.queryPage(pageNum, pageSize));
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+            @RequestParam(value = "source", required = false) String source,
+            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "triggerType", required = false) String triggerType) {
+        BookSyncLogQuery query = new BookSyncLogQuery();
+        query.setPageNum(pageNum);
+        query.setPageSize(pageSize);
+        query.setSource(source);
+        query.setStatus(status);
+        query.setTriggerType(triggerType);
+        return ApiResponse.success(bookSyncLogService.queryPage(query));
     }
 }
